@@ -26,22 +26,25 @@ services:
     restart: unless-stopped
 
   mysql:
-    image: mysql:8.4
+    image: mysql:latest
     container_name: inventrack_mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: users_db
       TZ: Asia/Kolkata
     ports:
-      - "3307:3306"      # optional: access from host as localhost:3307
+      - "3307:3306"
     networks:
       - inventrack-net
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot" ]
       interval: 5s
       timeout: 3s
       retries: 20
     restart: unless-stopped
+
+
+
 
   adminer:
     image: adminer:latest
@@ -53,4 +56,25 @@ services:
     networks:
       - inventrack-net
     restart: unless-stopped
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    depends_on:
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+    environment:
+      # If you ever need to override anything at runtime, add env vars here.
+      # Usually not needed because we fetch from Config Server.
+      TZ: Asia/Kolkata
+    ports:
+      - "8081:8081"
+    networks:
+      - inventrack-net
+    restart: unless-stopped
+
 
