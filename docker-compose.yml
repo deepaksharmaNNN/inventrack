@@ -1,0 +1,56 @@
+networks:
+  inventrack-net:
+
+services:
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      GIT_USERNAME: ${GIT_USERNAME}
+      GIT_TOKEN: ${GIT_TOKEN}
+    networks:
+      - inventrack-net
+    restart: unless-stopped
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+    networks:
+      - inventrack-net
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.4
+    container_name: inventrack_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: users_db
+      TZ: Asia/Kolkata
+    ports:
+      - "3307:3306"      # optional: access from host as localhost:3307
+    networks:
+      - inventrack-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:latest
+    container_name: inventrack_adminer
+    depends_on:
+      - mysql
+    ports:
+      - "8088:8080"      # open http://localhost:8088
+    networks:
+      - inventrack-net
+    restart: unless-stopped
+
