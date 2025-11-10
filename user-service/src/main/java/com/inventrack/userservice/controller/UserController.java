@@ -23,7 +23,7 @@ public class UserController {
         return "User Service is up and running!";
     }
 
-    @PostMapping
+    @PostMapping // http://localhost:8081/api/users
     public ResponseEntity<User> createUser(@RequestBody @Valid UserDto userDto){
         var saved = userService.createUser(userDto);
         return ResponseEntity.created(URI.create("/api/users/" + saved.getId())).body(saved);
