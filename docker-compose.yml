@@ -89,3 +89,19 @@ services:
       - "8082:8082"
     restart: on-failure
 
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: inventory-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - mysql
+    networks:
+      - inventrack-net
+    ports:
+      - "8083:8083"
+    restart: on-failure
+
+
