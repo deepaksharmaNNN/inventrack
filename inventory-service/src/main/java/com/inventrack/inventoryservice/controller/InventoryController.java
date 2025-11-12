@@ -38,4 +38,9 @@ public class InventoryController {
         Inventory inv = inventoryService.getByProductId(id);
         inventoryService.delete(inv);
     }
+
+    @PutMapping("/{id}/stock")
+    public Inventory updateStock(@PathVariable Long id, @RequestParam int quantity){
+        return inventoryService.updateStock(id, quantity);
+    }
 }
