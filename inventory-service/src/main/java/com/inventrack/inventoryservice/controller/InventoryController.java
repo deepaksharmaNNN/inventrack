@@ -57,4 +57,11 @@ public class InventoryController {
         inventoryService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/reduce")
+    public Boolean reduceStock(@RequestParam Long productId,
+                               @RequestParam int quantity) {
+
+        return inventoryService.reduceStock(productId, quantity);
+    }
 }

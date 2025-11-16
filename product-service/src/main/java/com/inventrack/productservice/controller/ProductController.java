@@ -44,4 +44,11 @@ public class ProductController {
         productService.deleteProduct(id);
     }
 
+    @PostMapping("/purchase")
+    public Boolean purchaseProduct(@RequestParam Long productId,
+                                   @RequestParam int qty) {
+        return productService.purchase(productId, qty);
+    }
+
+
 }

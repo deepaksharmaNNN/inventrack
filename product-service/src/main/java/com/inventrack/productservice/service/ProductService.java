@@ -1,6 +1,7 @@
 package com.inventrack.productservice.service;
 
 import com.inventrack.productservice.entity.Product;
+import com.inventrack.productservice.feign.InventoryClient;
 import com.inventrack.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.util.List;
 public class ProductService {
 
     private  final ProductRepository productRepository;
+    private final InventoryClient inventoryClient;
 
     public List<Product> getAllProducts(){
         return productRepository.findAll();
@@ -37,4 +39,15 @@ public class ProductService {
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
+
+    public Boolean purchase(Long productId, int qty) {
+        Boolean success = inventoryClient.reduceStock(productId, qty);
+
+        if (!success) {
+            throw new RuntimeException("Not enough stock!");
+        }
+
+        return true;
+    }
+
 }
