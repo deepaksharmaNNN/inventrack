@@ -12,7 +12,7 @@ public class NotificationClient {
 
     private final RestTemplate restTemplate;
 
-    @Value("${notification.service.url:http://notification-service:8084/api/notifications/low-stock}")
+    @Value("${notification.service.url:http://localhost:8084/api/notifications/low-stock}")
     private String notificationUrl;
 
     public void sendLowStockAlert(LowStockAlert alert){

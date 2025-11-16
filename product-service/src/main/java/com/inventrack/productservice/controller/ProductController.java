@@ -1,5 +1,7 @@
 package com.inventrack.productservice.controller;
 
+import com.inventrack.productservice.dto.PurchaseRequest;
+import com.inventrack.productservice.dto.PurchaseResponse;
 import com.inventrack.productservice.entity.Product;
 import com.inventrack.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -44,11 +46,15 @@ public class ProductController {
         productService.deleteProduct(id);
     }
 
+//    @PostMapping("/purchase")
+//    public Boolean purchaseProduct(@RequestParam Long productId,
+//                                   @RequestParam int qty) {
+//        return productService.purchase(productId, qty);
+//    }
+    // POST: http://localhost:8082/api/products/purchase
     @PostMapping("/purchase")
-    public Boolean purchaseProduct(@RequestParam Long productId,
-                                   @RequestParam int qty) {
-        return productService.purchase(productId, qty);
+    public PurchaseResponse purchase(@RequestBody PurchaseRequest request) {
+        return productService.purchaseProduct(request);
     }
-
 
 }

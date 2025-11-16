@@ -1,7 +1,12 @@
 package com.inventrack.productservice.service;
 
+import com.inventrack.productservice.dto.InventoryResponse;
+import com.inventrack.productservice.dto.LowStockAlert;
+import com.inventrack.productservice.dto.PurchaseRequest;
+import com.inventrack.productservice.dto.PurchaseResponse;
 import com.inventrack.productservice.entity.Product;
 import com.inventrack.productservice.feign.InventoryClient;
+import com.inventrack.productservice.feign.NotificationClient;
 import com.inventrack.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +19,7 @@ public class ProductService {
 
     private  final ProductRepository productRepository;
     private final InventoryClient inventoryClient;
+    private final NotificationClient notificationClient;
 
     public List<Product> getAllProducts(){
         return productRepository.findAll();
@@ -48,6 +54,46 @@ public class ProductService {
         }
 
         return true;
+    }
+    public PurchaseResponse purchaseProduct(PurchaseRequest purchaseRequest){
+        Product product = getProductById(purchaseRequest.getProductId());
+
+        // step 1: get inventory details
+        InventoryResponse inventory = inventoryClient.getByProductId(purchaseRequest.getProductId());
+
+        if(inventory.getQuantity() < purchaseRequest.getQuantity()){
+            return new PurchaseResponse(
+                    "Failed",
+                    "Insufficient stock for product: " + product.getName(),
+                    product.getId(),
+                    0
+            );
+        }
+
+        // step 2: decrease stock by calling inventory service
+        InventoryResponse updatedInventory = inventoryClient.updateStock(
+                inventory.getId(),
+                inventory.getQuantity() - purchaseRequest.getQuantity()
+        );
+
+        // step 3: Check for low stock -> notify
+        if(updatedInventory.getQuantity() <= updatedInventory.getThreshold()){
+            LowStockAlert alert = new LowStockAlert(
+                    product.getId(),
+                    product.getName(),
+                    updatedInventory.getQuantity(),
+                    updatedInventory.getThreshold(),
+                    "dsharma2828@gmail.com"
+            );
+            notificationClient.sendLowStockAlert(alert);
+        }
+        // step 4: return response
+        return new PurchaseResponse(
+                "Success",
+                "Purchased " + purchaseRequest.getQuantity() + " units of " + product.getName(),
+                product.getId(),
+                purchaseRequest.getQuantity()
+        );
     }
 
 }
