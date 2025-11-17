@@ -20,7 +20,7 @@ public class UserService {
         // Map UserDto to User entity
         var user = User.builder()
                 .name(userDto.getName())
-                .email(userDto.getEmail())
+                .username(userDto.getEmail())
                 .role(userDto.getRole())
                 .createdAt(java.time.Instant.now())
                 .build();

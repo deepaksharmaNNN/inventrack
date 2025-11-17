@@ -18,22 +18,20 @@ import java.time.Instant;
 @Setter
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @NotBlank
-    @Column(nullable = false)
+    @Column(unique = true)
     String name;
 
-    @Email
-    @NotBlank
-    @Column(nullable = false)
-    String email;
+    @Email @Column(unique=true, nullable=false)
+    String username;
 
-    @NotBlank
-    @Column(nullable = false)
-    String role;
+    @Column(nullable=false)
+    String password; // stored as BCrypt
+
+    @Column(nullable=false)
+    String role; // e.g. ROLE_USER or ROLE_ADMIN
 
     @Column(nullable = false, updatable = false)
     Instant createdAt;
