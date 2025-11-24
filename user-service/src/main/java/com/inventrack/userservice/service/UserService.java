@@ -5,26 +5,26 @@ import com.inventrack.userservice.entity.User;
 import com.inventrack.userservice.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Var;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepository;
-
+    private final PasswordEncoder passwordEncoder;
 
     public User createUser(@Valid UserDto userDto) {
-        // Map UserDto to User entity
         var user = User.builder()
-                .name(userDto.getName())
-                .username(userDto.getEmail())
+                .email(userDto.getEmail())
                 .role(userDto.getRole())
-                .createdAt(java.time.Instant.now())
+                .password(passwordEncoder.encode(userDto.getPassword()))
+                .createdAt(Instant.now())
                 .build();
-        // Save the user entity to the database
         return userRepository.save(user);
     }
 
@@ -33,10 +33,9 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElse(null);
+        return userRepository.findById(id).orElse(null);
     }
-    // delete user by id
+
     public String deleteUserById(Long id) {
         User user = getUserById(id);
         if (user != null) {
@@ -45,5 +44,9 @@ public class UserService {
         } else {
             return "User with id " + id + " not found.";
         }
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

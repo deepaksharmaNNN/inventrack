@@ -23,7 +23,7 @@ public class UserController {
         return "User Service is up and running!";
     }
 
-    @PostMapping // http://localhost:8081/api/users
+    @PostMapping
     public ResponseEntity<User> createUser(@RequestBody @Valid UserDto userDto){
         var saved = userService.createUser(userDto);
         return ResponseEntity.created(URI.create("/api/users/" + saved.getId())).body(saved);
@@ -51,4 +51,13 @@ public class UserController {
         }
         return ResponseEntity.ok(response);
     }
+
+    // ✅ FIXED ENDPOINT (matches Feign URL)
+    @GetMapping("/by-email/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(
+                userService.findByEmail(email).orElse(null)
+        );
+    }
+
 }
